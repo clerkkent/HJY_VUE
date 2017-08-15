@@ -5,6 +5,12 @@ const Index = resolve => require(['../components/index'], resolve)
 const Second = resolve => require(['../components/second'], resolve)
 const Bar = resolve => require(['../components/Bar'], resolve)
 const Baz = resolve => require(['../components/Baz'], resolve)
+
+const Car_Info = resolve => require(['../pages/car_info'], resolve)
+const result = resolve => require(['../pages/result'], resolve)
+const car_list = resolve => require(['../pages/car_list'], resolve)
+
+
 const isPro = process.env.NODE_ENV.trim() === 'production'
 const routerConfig = {
     mode: isPro ? 'history' : 'hash',
@@ -32,7 +38,22 @@ const routerConfig = {
                 component: Second
             }]
         },
-        { path: '/second', name: 'second', props: { name: 'name' }, component: Second }
+        { path: '/second', name: 'second', props: { name: 'name' }, component: Second },
+        {
+            path: '/car_info',
+            name: 'car_info',
+            component: Car_Info
+        },
+        {
+            path: '/result',
+            name: 'result',
+            component: result
+        },
+        {
+            path: '/car_list',
+            name: 'car_list',
+            component: car_list
+        },
     ]
 }
 const router = new VueRouter(routerConfig)
