@@ -5,7 +5,7 @@ const state = {
 
     },
     text: 1,
-    show: true
+    show: false, //选择车牌状态控制
 }
 const getters = {
     changeText: state => {
@@ -24,6 +24,12 @@ const actions = {
     },
     dealpopum({ commit, state }, payload) {
         commit(types.HIDEPOPUM, false)
+    },
+    carsignshow({ commit, state }, payload) {
+        commit(types.CARSIGNSHOW, true)
+    },
+    carsignhide({ commit, state }, payload) {
+        commit(types.CARSIGNHIDE, false)
     }
 }
 const mutations = {
@@ -31,6 +37,12 @@ const mutations = {
         state.dataa = res
     },
     [types.HIDEPOPUM](state, res) {
+        state.show = res
+    },
+    [types.CARSIGNSHOW](state, res) {
+        state.show = res
+    },
+    [types.CARSIGNHIDE](state, res) {
         state.show = res
     }
 }

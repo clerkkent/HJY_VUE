@@ -1,5 +1,5 @@
 <template>
-    <div class="car_info" v-clientheight>
+    <div class="car_info" v-clientheight @click="request">
         <div v-if="!CarDefault">
             <form>
                 <div class="city">
@@ -15,7 +15,7 @@
                         车牌号
                     </p>
                     <p class="content">
-                        <span>京</span>
+                        <span @click="SelectCarSign">京</span>
                         <input type="number" placeholder="" value="2334323" autocomplete="off"/>
                     </p>
                 </div>
@@ -44,19 +44,20 @@
         </div>
        </div>
        <CarDefault v-if="CarDefault"></CarDefault>
+       <CarSign v-show="carsignshow"></CarSign>
     </div>
 </template>
 <script>
 import store from '../store/state'
 import router from '../router/router'
 import directive from '../directive/clientheight'
-
-const cs= resolve => require(['../components/city_select'], resolve);
 const CarDefault = resolve => require(['../components/CarDefault'], resolve);
+const CarSign=resolve=>require(['../components/carsign'],resolve);
+import http from '../global/http'
 export default{
     components: {
-        cs,
-        CarDefault
+        CarDefault,
+        CarSign
     },
     props:{
             id:{
@@ -69,7 +70,8 @@ export default{
             content:'x',
             num:200,
             hhe:'fuck',
-            CarDefault:true
+            CarDefault:false,
+            CarSign:true
         }
     },
     methods:{
@@ -82,11 +84,25 @@ export default{
         },
         close(){
             this.show=false
+        },
+        SelectCarSign(){
+             this.$store.dispatch("carsignshow");
+        },
+        request(){
+            let list = {
+                "jsonrpc": "2.0",
+                "method": "getPrizeUser",
+                "params": [],
+                "id": 1
+            }
+            http("/operate/index.php?c=activity_invite",list).then((data)=>{
+                 console.log(data)
+            })
         }
     },
     computed: {
-            count () {
-            return store.state
+        carsignshow () {
+            return store.state.index.show
         }
     }
     }
