@@ -36,6 +36,7 @@
                     </p>
                 </div>
             </form>
+            <Button @click="popum">标准</Button>
             <p class="remind" @click="remind">如何查找爱车发动机好，上架号？</p>
         <Button type="warning" style="width:90%;" long>确认提交</Button>
         <!-- <cs></cs> -->
@@ -91,14 +92,28 @@ export default{
         request(){
             let list = {
                 "jsonrpc": "2.0",
-                "method": "getPrizeUser",
-                "params": [],
+                "method": "getUserCarLists",
+                "params": [{
+                    uid:"1"
+                }],
                 "id": 1
             }
-            http("/operate/index.php?c=activity_invite",list).then((data)=>{
+            http("/passport/service.php?c=illegal",list).then((data)=>{
                  console.log(data)
             })
-        }
+        },
+        popum(){
+            this.$Modal.info({
+                title:"提示",
+                content:"这是一个测试",
+                okText:"确认",
+                cancelText:"取消",
+                width:"200",
+                onOk:()=>{
+                    console.log(12132)
+                }
+            })
+        }   
     },
     computed: {
         carsignshow () {

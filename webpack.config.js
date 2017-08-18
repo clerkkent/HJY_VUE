@@ -171,7 +171,7 @@ module.exports = {
         port: "3001",
         proxy: {
             // 请求到 '/device' 下 的请求都会被代理到 target： http://debug.xxx.com 中
-            '/operate/*': {
+            '/passport/*': {
                 target: 'https://test1.ihuijiayou.com',
                 secure: false, // 接受 运行在 https 上的服务
                 changeOrigin: true
@@ -185,5 +185,5 @@ module.exports = {
         }
     },
     plugins: plugins,
-    devtool: isPro ? '#source-map' : '#cheap-module-eval-source-map'//
+    devtool: isPro ? '#source-map' : '#cheap-module-eval-source-map' //
 }
