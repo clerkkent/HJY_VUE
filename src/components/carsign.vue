@@ -2,12 +2,7 @@
     <div class="CarSign" v-clientheight>
         <section>
             <ul>
-                <li>京</li>
-                <li>京</li>
-                <li>京</li>
-                <li>京</li>
-                <li>京</li>
-                <li>京</li>
+                <li v-for="item in carsign">{{item}}</li>
             </ul>
              <Button type="warning" class="confirm" style="" long @click="carsignhide">选好了</Button>
         </section>
@@ -38,7 +33,9 @@ export default{
         },
     },
     computed: {
-        
+        carsign(){
+            return store.state.index.CarFirst;
+        }
     }
     }
 </script>

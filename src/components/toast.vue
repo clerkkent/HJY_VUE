@@ -1,4 +1,4 @@
-<template></template>
+<template>
     <transition :name="fadeIn">
         <div class="alertBox" v-show="show">
             <div class="alert-mask" v-show="isShowMask"></div>

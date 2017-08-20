@@ -6,6 +6,9 @@ const state = {
     },
     text: 1,
     show: false, //选择车牌状态控制
+    ViolationList: "",
+    Carlist: "",
+    CarFirst: ["京", "沪", "浙"]
 }
 const getters = {
     changeText: state => {

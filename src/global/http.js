@@ -52,6 +52,7 @@ let response = (url, data_send, authToken) => {
     const isPro = process.env.NODE_ENV.trim() === 'production';
     let url_d = null;
     isPro ? url_d = location.origin + url : url_d = url
+        // url_d = "https://test1.ihuijiayou.com" + url
     let data = axios({
         method: 'POST',
         url: url_d,

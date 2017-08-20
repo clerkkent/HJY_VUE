@@ -1,22 +1,22 @@
 <template>
-    <div class="car_info" v-clientheight @click="request">
+    <div class="car_info" v-clientheight>
         <div v-if="!CarDefault">
-            <form>
-                <div class="city">
-                    <p class="list_title">
-                        查询城市
-                    </p>
-                    <p class="content">
-                        可选多个城市
-                    </p>
-                </div>
+            <form id="registerForm">
+                <!-- <div class="city">
+                                            <p class="list_title">
+                                                查询城市
+                                            </p>
+                                            <p class="content">
+                                                可选多个城市
+                                            </p>
+                                        </div> -->
                 <div class="lpn">
                     <p class="list_title">
                         车牌号
                     </p>
                     <p class="content">
                         <span @click="SelectCarSign">京</span>
-                        <input type="number" placeholder="" value="2334323" autocomplete="off"/>
+                        <input type="text" v-model="submitData.lpn" name="lpn" placeholder="" value="2334323" autocomplete="off" />
                     </p>
                 </div>
                 <div class="En">
@@ -24,7 +24,7 @@
                         发动机号
                     </p>
                     <p class="content">
-                    <input type="number" placeholder="请输入发动机号" value="" autocomplete="off"/>
+                        <input type="text" v-model="submitData.En" name="En" placeholder="请输入发动机号" value="" autocomplete="off" />
                     </p>
                 </div>
                 <div class="VIN">
@@ -32,94 +32,127 @@
                         车架号
                     </p>
                     <p class="content">
-                    <input type="number" placeholder="请输入车架号" value="" autocomplete="off"/>
+                        <input type="text" v-model="submitData.VIN" name="VIN" placeholder="请输入车架号" value="" autocomplete="off" />
                     </p>
                 </div>
             </form>
             <Button @click="popum">标准</Button>
             <p class="remind" @click="remind">如何查找爱车发动机好，上架号？</p>
-        <Button type="warning" style="width:90%;" long>确认提交</Button>
-        <!-- <cs></cs> -->
-        <div class="fade" v-if="show" @click="close" v-clientheight>
-            <div>xxx</div>
+            <Button type="warning" style="width:90%;" long @click="request">确认提交</Button>
+            <!-- <cs></cs> -->
+            <div class="fade" v-if="show" @click="close" v-clientheight>
+                <div>xxx</div>
+            </div>
         </div>
-       </div>
-       <CarDefault v-if="CarDefault"></CarDefault>
-       <CarSign v-show="carsignshow"></CarSign>
+        <CarDefault v-if="CarDefault"></CarDefault>
+        <CarSign v-show="carsignshow"></CarSign>
     </div>
 </template>
 <script>
-import store from '../store/state'
-import router from '../router/router'
-import directive from '../directive/clientheight'
-const CarDefault = resolve => require(['../components/CarDefault'], resolve);
-const CarSign=resolve=>require(['../components/carsign'],resolve);
-import http from '../global/http'
-export default{
-    components: {
-        CarDefault,
-        CarSign
-    },
-    props:{
-            id:{
-                type:Number
+    import store from '../store/state'
+    import router from '../router/router'
+    import directive from '../directive/clientheight'
+    const CarDefault = resolve => require(['../components/CarDefault'], resolve);
+    const CarSign = resolve => require(['../components/carsign'], resolve);
+    import {
+        Toast
+    } from 'mint-ui';
+    import http from '../global/http'
+    import ValidataResult from '../global/verify'
+    export default {
+        components: {
+            CarDefault,
+            CarSign
+        },
+        props: {
+            id: {
+                type: Number
             }
         },
-    data(){
-        return {
-            show:false,
-            content:'x',
-            num:200,
-            hhe:'fuck',
-            CarDefault:false,
-            CarSign:true
-        }
-    },
-    methods:{
-        dosomething (){
-            this.content="混合"
-            router.push({ path: '/second' })//栈导航
-        },
-        remind(){
-            this.show=true
-        },
-        close(){
-            this.show=false
-        },
-        SelectCarSign(){
-             this.$store.dispatch("carsignshow");
-        },
-        request(){
-            let list = {
-                "jsonrpc": "2.0",
-                "method": "getUserCarLists",
-                "params": [{
-                    uid:"1"
-                }],
-                "id": 1
-            }
-            http("/passport/service.php?c=illegal",list).then((data)=>{
-                 console.log(data)
-            })
-        },
-        popum(){
-            this.$Modal.info({
-                title:"提示",
-                content:"这是一个测试",
-                okText:"确认",
-                cancelText:"取消",
-                width:"200",
-                onOk:()=>{
-                    console.log(12132)
+        data() {
+            return {
+                show: false,
+                content: 'x',
+                num: 200,
+                hhe: 'fuck',
+                CarDefault: false,
+                CarSign: true,
+                submitData: {
+                    lpn: "",
+                    En: "",
+                    VIN: ""
                 }
-            })
-        }   
-    },
-    computed: {
-        carsignshow () {
-            return store.state.index.show
+            }
+        },
+        methods: {
+            dosomething() {
+                this.content = "混合"
+                router.push({
+                    path: '/second'
+                }) //栈导航
+            },
+            remind() {
+                this.show = true
+            },
+            close() {
+                this.show = false
+            },
+            SelectCarSign() {
+                this.$store.dispatch("carsignshow");
+            },
+            request() {
+                var list = {
+                    "jsonrpc": "2.0",
+                    "method": "GetViolationInfo",
+                    "params": [{
+                        "hphm": "京QQ22L7",
+                    }],
+                    "id": 1
+                }
+                http("/passport/service.php?c=violation", list).then((data) => {
+                    console.log(data.data)
+                })
+                if (ValidataResult(this.submitData) == true) {
+                    // var list = {
+                    //     "jsonrpc": "2.0",
+                    //     "method": "addUserCarInfo",
+                    //     "params": [{
+                    //         // cid: "",
+                    //         hphm: this.submitData.lpn,
+                    //         engineno: this.submitData.En,
+                    //         classno: this.submitData.VIN
+                    //     }],
+                    //     "id": 1
+                    // }
+                    var list = {
+                        "jsonrpc": "2.0",
+                        "method": "GetViolationInfo",
+                        "params": [{
+                            "hphm": "京QQ22L7",
+                        }],
+                        "id": 1
+                    }
+                    http("/passport/service.php?c=illegal", list, "5rm40p60npgaqbgvd8cb3b1r96").then((data) => {
+                        console.log(data.data)
+                    })
+                } else {
+                    Toast({
+                        message: ValidataResult(this.submitData),
+                        iconClass: 'icon icon-success',
+                        duration: 1000
+                    });
+                }
+            },
+            popum() {
+                console.log(ValidataResult(this.submitData))
+                // ValidataResult() 
+            }
+        },
+        computed: {
+            carsignshow() {
+                return store.state.index.show
+            }
         }
-    }
     }
 </script>
 <style lang="sass" scoped>
