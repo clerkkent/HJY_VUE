@@ -15,6 +15,8 @@ import MintUI from 'mint-ui';
 import 'mint-ui/lib/style.css'
 Vue.use(MintUI);
 
+import vconsole from 'vconsole'
+
 
 import Validator from 'vue-validator'
 Vue.use(Validator)

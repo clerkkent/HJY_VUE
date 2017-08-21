@@ -3,19 +3,19 @@
         <div v-if="!CarDefault">
             <form id="registerForm">
                 <!-- <div class="city">
-                                            <p class="list_title">
-                                                查询城市
-                                            </p>
-                                            <p class="content">
-                                                可选多个城市
-                                            </p>
-                                        </div> -->
+                                                                        <p class="list_title">
+                                                                            查询城市
+                                                                        </p>
+                                                                        <p class="content">
+                                                                            可选多个城市
+                                                                        </p>
+                                                                    </div> -->
                 <div class="lpn">
                     <p class="list_title">
                         车牌号
                     </p>
                     <p class="content">
-                        <span @click="SelectCarSign">京</span>
+                        <span @click="SelectCarSign">{{carsign}}</span>
                         <input type="text" v-model="submitData.lpn" name="lpn" placeholder="" value="2334323" autocomplete="off" />
                     </p>
                 </div>
@@ -36,15 +36,15 @@
                     </p>
                 </div>
             </form>
-            <Button @click="popum">标准</Button>
+            <!-- <Button @click="popum">标准</Button> -->
             <p class="remind" @click="remind">如何查找爱车发动机好，上架号？</p>
             <Button type="warning" style="width:90%;" long @click="request">确认提交</Button>
             <!-- <cs></cs> -->
             <div class="fade" v-if="show" @click="close" v-clientheight>
-                <div>xxx</div>
+                <div class="ex"></div>
             </div>
         </div>
-        <CarDefault v-if="CarDefault"></CarDefault>
+        <!-- <CarDefault v-if="CarDefault"></CarDefault> -->
         <CarSign v-show="carsignshow"></CarSign>
     </div>
 </template>
@@ -52,7 +52,7 @@
     import store from '../store/state'
     import router from '../router/router'
     import directive from '../directive/clientheight'
-    const CarDefault = resolve => require(['../components/CarDefault'], resolve);
+    // const CarDefault = resolve => require(['../components/CarDefault'], resolve);
     const CarSign = resolve => require(['../components/carsign'], resolve);
     import {
         Toast
@@ -61,7 +61,7 @@
     import ValidataResult from '../global/verify'
     export default {
         components: {
-            CarDefault,
+            // CarDefault,
             CarSign
         },
         props: {
@@ -100,40 +100,54 @@
             SelectCarSign() {
                 this.$store.dispatch("carsignshow");
             },
+            addcar() {
+                this.CarDefault = false
+            },
             request() {
-                var list = {
-                    "jsonrpc": "2.0",
-                    "method": "GetViolationInfo",
-                    "params": [{
-                        "hphm": "京QQ22L7",
-                    }],
-                    "id": 1
-                }
-                http("/passport/service.php?c=violation", list).then((data) => {
-                    console.log(data.data)
-                })
                 if (ValidataResult(this.submitData) == true) {
-                    // var list = {
-                    //     "jsonrpc": "2.0",
-                    //     "method": "addUserCarInfo",
-                    //     "params": [{
-                    //         // cid: "",
-                    //         hphm: this.submitData.lpn,
-                    //         engineno: this.submitData.En,
-                    //         classno: this.submitData.VIN
-                    //     }],
-                    //     "id": 1
-                    // }
-                    var list = {
-                        "jsonrpc": "2.0",
-                        "method": "GetViolationInfo",
-                        "params": [{
-                            "hphm": "京QQ22L7",
-                        }],
-                        "id": 1
+                    if (store.state.index.cid == "") {
+                        var list = {
+                            "jsonrpc": "2.0",
+                            "method": "addUserCarInfo",
+                            "params": [{
+                                "uid": store.state.index.user_id,
+                                // "cid": 1,
+                                "hphm": store.state.index.carsign + this.submitData.lpn,
+                                "engineno": this.submitData.En,
+                                "classno": this.submitData.VIN,
+                            }],
+                            "id": 1
+                        }
+                    } else {
+                        var list = {
+                            "jsonrpc": "2.0",
+                            "method": "addUserCarInfo",
+                            "params": [{
+                                "uid": store.state.index.user_id,
+                                "cid": store.state.index.cid,
+                                "hphm": store.state.index.carsign + this.submitData.lpn,
+                                "engineno": this.submitData.En,
+                                "classno": this.submitData.VIN,
+                            }],
+                            "id": 1
+                        }
                     }
-                    http("/passport/service.php?c=illegal", list, "5rm40p60npgaqbgvd8cb3b1r96").then((data) => {
-                        console.log(data.data)
+                    http("/passport/service.php?c=illegal", list).then((data) => {
+                        console.log(data.data.result)
+                        if (data.data.result.code == -1) {
+                            Toast({
+                                message: data.data.result.msg,
+                                iconClass: 'icon icon-success',
+                                duration: 1000
+                            });
+                        } else {
+                            router.push({
+                                path: '/car_list',
+                                query: {
+                                    userId: 123
+                                }
+                            })
+                        }
                     })
                 } else {
                     Toast({
@@ -145,13 +159,38 @@
             },
             popum() {
                 console.log(ValidataResult(this.submitData))
-                // ValidataResult() 
+                // ValidataResult()
+            },
+            refresh() {
+                var list = {
+                    "jsonrpc": "2.0",
+                    "method": "getUserCarLists",
+                    "params": [{
+                        "uid": 460,
+                    }],
+                    "id": 1
+                }
+                http("/passport/service.php?c=illegal", list).then((data) => {
+                    if (data.data.result.data.length == 0) {
+                        router.push({
+                            path: '/car_default',
+                        })
+                    } else {
+                        this.car = data.data.result.data
+                    }
+                })
             }
         },
         computed: {
             carsignshow() {
                 return store.state.index.show
+            },
+            carsign() {
+                return store.state.index.carsign
             }
+        },
+        beforeMount: function() {
+            // this.refresh()
         }
     }
 </script>
@@ -159,10 +198,12 @@
     @import "../sass/temp.scss";
     .car_info{
          background:#eee;
+         overflow:hidden;
          .fade{
              width:100%;
              position:fixed;
-             background:rgba(black,.5);
+             @include backgroundset("../asset/images/Violation/ic_dr.png",center,center,90%);
+             background-color:rgba(black,.5);
              top:0;
              transition:all .6s;
          }
@@ -197,6 +238,8 @@
                 input{
                     border:none;
                     text-align:center;
+                    width:2.218665rem;
+                    border:none;
                 }
              }
              .city{
@@ -243,7 +286,7 @@
                 }
              }
          }
-          .remind{
+        .remind{
                 margin:0.2048rem;
                 font-family: PingFangSC-Regular;
                 font-size: 0.2048rem;

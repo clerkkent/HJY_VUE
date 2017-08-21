@@ -1,77 +1,128 @@
 <template>
-<div class="result" v-clientheight>
-    <header>
-        <h3>京AFFFFFF</h3>
-        <P>编辑</P>
-    </header>
-    <section>
-        <div class="overview">
-            <p>
-                <span class="title">未处理违章</span><br/>
-                <span class="info">0条</span>
-            </p>
-            <p>
-                <span class="title">积分</span><br/>
-                <span class="info">6分</span>
-            </p>
-            <p>
-                <span class="title">罚款</span><br/>
-                <span class="info">￥600</span>
-            </p>
-        </div>
-        <ul class="list">
-            <li>
-                <h3>2017/8/7&nbsp&nbsp&nbsp12:00</h3>
+    <div class="result" v-clientheight>
+        <header>
+            <h3>{{main.hphm}}</h3>
+            <P @click="edit">编辑</P>
+        </header>
+        <section>
+            <div class="overview">
                 <p>
-                    <span class="title">违章地点：</span>
-                    <span class="content">二环路xxxxxxxx</span>
+                    <span class="title">未处理违章</span><br/>
+                    <span class="info">{{main.unhandeled}}条</span>
                 </p>
                 <p>
-                    <span class="title">违章行为：</span>
-                    <span class="content">二环路xxxxxxxx</span>
+                    <span class="title">积分</span><br/>
+                    <span class="info">{{main.fen}}分</span>
                 </p>
                 <p>
-                    <span class="title">扣分：</span>
-                    <span class="content">二环路xxxxxxxx</span>
+                    <span class="title">罚款</span><br/>
+                    <span class="info">￥{{main.money}}</span>
                 </p>
-                <p>
-                    <span class="title">状态：</span>
-                    <span class="content">二环路xxxxxxxx</span>
-                </p>
-            </li>
-        </ul>
-    </section>
-</div>
+            </div>
+            <ul class="list" v-if="!show">
+                <li v-for="item in record">
+                    <h3>{{item.date}}</h3>
+                    <p>
+                        <span class="title">违章地点：</span>
+                        <span class="content">{{item.area}}</span>
+                    </p>
+                    <p>
+                        <span class="title">违章行为：</span>
+                        <span class="content">{{item.act}}</span>
+                    </p>
+                    <p>
+                        <span class="title">扣分：</span>
+                        <span class="content">{{item.fen}}分</span>
+                    </p>
+                    <p>
+                        <span class="title">罚款：</span>
+                        <span class="content">￥{{item.money}}</span>
+                    </p>
+                    <p>
+                        <span class="title">状态：</span>
+                        <span class="content">{{item.handled==0 ? "未处理" : "已处理"}}</span>
+                    </p>
+                </li>
+            </ul>
+            <div class="none_record" v-if="show">
+                <p>你当前无违章行为，请继续保持</p>
+            </div>
+        </section>
+    </div>
 </template>
 <script>
-import store from '../store/state'
-import router from '../router/router'
-import directive from '../directive/clientheight'
-export default{
-    props:{
-            id:{
-                type:Number
+    import store from '../store/state'
+    import router from '../router/router'
+    import directive from '../directive/clientheight'
+    import http from '../global/http'
+    import {
+        Toast
+    } from 'mint-ui';
+    export default {
+        props: {
+            id: {
+                type: Number
             }
         },
-    data(){
-        return {
-            show:false,
-            content:'x',
-            num:200,
-            hhe:'fuck'
-        }
-    },
-    methods:{
-        dosomething (){
-            this.content="混合"
-            router.push({ path: '/second' })//栈导航
-        }
-    },
-    computed: {
-            count () {
-            return store.state
-        }
-    }
+        data() {
+            return {
+                show: true,
+                main: {},
+                state: "",
+                cid: this.$route.params.car.id,
+                record: []
+            }
+        },
+        methods: {
+            dosomething() {
+                this.content = "混合"
+                router.push({
+                    path: '/second'
+                }) //栈导航
+            },
+            edit() {
+                this.$store.dispatch("cid", {
+                    cid: this.$route.params.car.id
+                });
+                router.push({
+                    path: '/car_info',
+                })
+            }
+        },
+        computed: {
+            count() {
+                return store.state
+            }
+        },
+        mounted: function() {
+            var list = {
+                "jsonrpc": "2.0",
+                "method": "GetViolationInfo",
+                "params": [{
+                    "hphm": this.$route.params.car.hphm,
+                    "uid": store.state.index.user_id,
+                }],
+                "id": 1
+            }
+            console.log(list)
+            http("/passport/service.php?c=violation", list).then((data) => {
+                let key = JSON.stringify(this.$route.params.car.hphm);
+                let list = JSON.parse(data.data.result.data)
+                let first = list
+                let message = first
+                let record = JSON.parse(message.lists)
+                this.record = record;
+                this.main = message;
+                console.log(message)
+                console.log(record)
+                if (record.length == 0) {
+                    this.show = true;
+                } else {
+                    this.show = false;
+                    this.car = data.data.result.data
+                }
+            })
+        },
     }
 </script>
 <style lang="sass" scoped>
@@ -106,7 +157,7 @@ export default{
             }
         }
         section{
-            overflow:hidden;
+            overflow:scroll;
             flex:1;
             display:flex;
             flex-direction:column;
@@ -162,19 +213,32 @@ export default{
                             font-family: PingFangSC-Regular;
                             font-size: 0.238933rem;
                             width:1.597066rem;
-                            display:inline-block;
                             color: #999999;
                             letter-spacing: 0;
                             text-align:left;
                             text-indent:.3rem;
+                            display:inline-block;
                         }
                         .content{
                             font-family: PingFangSC-Regular;
                             font-size: 0.238933rem;
                             color: #151515;
                             letter-spacing: 0;
+                            @include ell;
                         }
                     }
+                }
+            }
+            .none_record{
+                flex:1;
+                @include backgroundset("../asset/images/Violation/ic_qs2.png",center,30%,3rem);
+                p{
+                    text-align:center;
+                    margin-top:80%;
+                    font-family: PingFangSC-Regular;
+                    font-size:0.256rem;
+                    color: #999999;
+                    letter-spacing: 0;
                 }
             }
         }

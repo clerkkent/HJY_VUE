@@ -9,7 +9,7 @@ const Baz = resolve => require(['../components/Baz'], resolve)
 const Car_Info = resolve => require(['../pages/car_info'], resolve)
 const result = resolve => require(['../pages/result'], resolve)
 const car_list = resolve => require(['../pages/car_list'], resolve)
-
+const CarDefault = resolve => require(['../pages/CarDefault'], resolve)
 
 const isPro = process.env.NODE_ENV.trim() === 'production'
 const routerConfig = {
@@ -23,21 +23,21 @@ const routerConfig = {
             name: 'de',
             props: { name: 'name' },
             components: {
-                default: Index,
+                default: CarDefault,
                 a: Bar,
                 b: Baz
             }
         },
-        {
-            path: '/index',
-            name: 'index',
-            props: { name: 'name' },
-            component: Index,
-            children: [{
-                path: 'children',
-                component: Second
-            }]
-        },
+        // {
+        //     path: '/index',
+        //     name: 'index',
+        //     props: { name: 'name' },
+        //     component: Index,
+        //     children: [{
+        //         path: 'children',
+        //         component: Second
+        //     }]
+        // },
         { path: '/second', name: 'second', props: { name: 'name' }, component: Second },
         {
             path: '/car_info',
@@ -54,6 +54,11 @@ const routerConfig = {
             name: 'car_list',
             component: car_list
         },
+        {
+            path: '/car_default',
+            name: 'car_default',
+            component: CarDefault
+        }
     ]
 }
 const router = new VueRouter(routerConfig)

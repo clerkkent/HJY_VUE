@@ -8,7 +8,12 @@ const state = {
     show: false, //选择车牌状态控制
     ViolationList: "",
     Carlist: "",
-    CarFirst: ["京", "沪", "浙"]
+    CarFirst: ['京', '津', '渝', '沪', '冀', '晋', '辽', '吉', '黑', '苏', '浙', '皖', '闽', '赣', '鲁', '豫', '鄂', '湘', '粤', '琼', '川', '黔', '云', '陕', '甘', '青', '台', '蒙', '桂', '宁', '新', '藏', '港', '澳'],
+    carsign: "京",
+    CarDefault: false,
+    cid: "",
+    user_id: "",
+    token: ""
 }
 const getters = {
     changeText: state => {
@@ -33,7 +38,18 @@ const actions = {
     },
     carsignhide({ commit, state }, payload) {
         commit(types.CARSIGNHIDE, false)
-    }
+    },
+    changecarsign({ commit, state }, payload) {
+        console.log(payload)
+        commit(types.CHANGECARSIGN, payload.carsign)
+    },
+    cid({ commit, state }, payload) {
+        console.log(payload)
+        commit(types.CID, payload.cid)
+    },
+    login({ commit, state }, payload) {
+        commit(types.LOGIN, payload)
+    },
 }
 const mutations = {
     [types.INDEXINFO](state, res) {
@@ -47,6 +63,16 @@ const mutations = {
     },
     [types.CARSIGNHIDE](state, res) {
         state.show = res
+    },
+    [types.CHANGECARSIGN](state, res) {
+        state.carsign = res
+    },
+    [types.CID](state, res) {
+        state.cid = res
+    },
+    [types.LOGIN](state, res) {
+        state.user_id = res.user_id
+        state.token = res.token
     }
 }
 export default {

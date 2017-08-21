@@ -2,7 +2,7 @@
     <div class="CarSign" v-clientheight>
         <section>
             <ul>
-                <li v-for="item in carsign">{{item}}</li>
+                <li v-for="item in carsign" @click="change(item)">{{item}}</li>
             </ul>
              <Button type="warning" class="confirm" style="" long @click="carsignhide">选好了</Button>
         </section>
@@ -31,6 +31,9 @@ export default{
         carsignhide (){
              this.$store.dispatch("carsignhide");
         },
+        change(x){
+             this.$store.dispatch("changecarsign",{carsign:x});
+        }
     },
     computed: {
         carsign(){
